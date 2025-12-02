@@ -32,7 +32,7 @@ if not GEMINI_API_KEY:
 genai.configure(api_key=GEMINI_API_KEY)
 
 # MODELS
-ROUTER_MODEL = genai.GenerativeModel('gemini-2.5-flash', generation_config={"response_mime_type": "application/json"})
+ROUTER_MODEL = genai.GenerativeModel('gemini-2.5-pro', generation_config={"response_mime_type": "application/json"})
 EXPANDER_MODEL = genai.GenerativeModel('gemini-2.5-flash', generation_config={"response_mime_type": "application/json"})
 FILTER_MODEL = genai.GenerativeModel('gemini-2.5-flash', generation_config={"response_mime_type": "application/json"}) # <--- FILTER AGENT
 SOLVER_MODEL = genai.GenerativeModel('gemini-2.5-pro')
@@ -67,14 +67,17 @@ except Exception as e:
 def agent_router(query):
     logger.info(f"--- AGENT 1: ROUTER --- Input: '{query}'")
     system_prompt = """
-    You are a Search Scope Manager.
+    You are a Search Weight Manager.
     User Query: {query}
-    DECISION LOGIC:
-    1. STRICTLY VISUAL: "Show me photos" -> search_images: True, search_chats: False
-    2. STRICTLY TEXTUAL: "Quote the message" -> search_images: False, search_chats: True
-    3. NARRATIVE/MEMORY (Default): "How was March?", "Tell me about the trip" -> search_images: True, search_chats: True
     
-    Output JSON: {"search_chats": bool, "search_images": bool, "reasoning": "string"}
+    Task: Assign relevance weights (0.0 to 1.0) to Text vs Images.
+    
+    GUIDELINES:
+    1. "Show me photos", "How did we look?" -> image_weight: 0.9, text_weight: 0.1
+    2. "What did I say?", "Quote the message" -> image_weight: 0.1, text_weight: 1.0
+    3. "Tell me about the trip", "How was March?" -> image_weight: 0.4, text_weight: 0.6 (Narrative needs both)
+    
+    Output JSON: {"text_weight": float, "image_weight": float, "reasoning": "string"}
     """
     try:
         response = ROUTER_MODEL.generate_content(f"{system_prompt}\nQUERY: {query}")
@@ -83,7 +86,8 @@ def agent_router(query):
         return decision
     except Exception as e:
         logger.error(f"Router Failed: {e}")
-        return {"search_chats": True, "search_images": True, "reasoning": "Fallback Error"}
+        # return {"search_chats": True, "search_images": True, "reasoning": "Fallback Error"}
+        return {"text_weight": 0.8, "image_weight": 0.4, "reasoning": "Error fallback"}
 
 def agent_expander(query, route_decision):
     logger.info(f"--- AGENT 2: EXPANDER --- Input: '{query}'")
@@ -141,22 +145,22 @@ def run_retrieval(queries, decision):
 
     for q in queries:
         # 1. Search Chats
-        if decision['search_chats']:
-            chat_res = chat_col.query(query_texts=[q], n_results=5)
+        # if decision['search_chats']:
+            chat_res = chat_col.query(query_texts=[q], n_results=20)
             if chat_res['documents']:
                 for i, doc in enumerate(chat_res['documents'][0]):
                     meta = chat_res['metadatas'][0][i]
                     uid = meta.get('chunk_id', doc[:10])
                     dist = chat_res['distances'][0][i]
                     
-                    if uid not in seen_chat_ids and dist < 0.6:
+                    if uid not in seen_chat_ids and dist < 1.5:
                         seen_chat_ids.add(uid)
                         date = meta.get('date', 'Unknown')
                         context_text += f"--- MEMORY ({date}) ---\n{doc}\nRAW: {meta.get('raw_chat_dump', '')}\n\n"
                         debug_retrieval_log.append(f"Chat: {date} (Dist: {dist:.2f})")
 
         # 2. Search Images
-        if decision['search_images']:
+        # if decision['search_images']:
             img_res = img_col.query(query_texts=[q], n_results=2)
             if img_res['documents']:
                 for i, doc in enumerate(img_res['documents'][0]):
@@ -217,14 +221,44 @@ def agent_image_filter(query, img_candidates):
         logger.error(f"Filter Agent Failed: {e}")
         return [x['path'] for x in img_candidates] # Fallback: return all
 
-def agent_solver(query, context):
+def agent_solver(query, context,weights):
     logger.info("--- AGENT 5: SOLVER --- Synthesizing...")
-    system_prompt = """
+
+    # DYNAMIC INSTRUCTION BASED ON WEIGHTS
+    w_text = weights.get('text_weight', 0.7)
+    w_img = weights.get('image_weight', 0.3)
+    
+    focus_instruction = ""
+    if w_img > 0.8 and w_text < 0.5:
+        focus_instruction = """
+        **MODE: VISUAL GALLERY**
+        - The user primarily wants to see photos.
+        - Your text response should be brief.
+        - Describe the photos vividy.
+        """
+    elif w_text > 0.8 and w_img < 0.5:
+        focus_instruction = """
+        **MODE: DEEP CONVERSATION**
+        - The user wants details about what was SAID.
+        - You MUST quote the "TRANSCRIPT" sections.
+        - Use photos sparingly, only if they perfectly match a specific message.
+        """
+    else:
+        focus_instruction = """
+        **MODE: NARRATIVE STORY**
+        - Create a timeline.
+        - Weave the Chat Logs (Facts/Feelings) and Photos (Visuals) together equally.
+        """
+
+    system_prompt = f"""
     You are an ancient Storyteller for Rishabh and Chetna. You have access to their history, both text and photos.
     Answer as a wizard from the past, weaving memories into a heartfelt narrative.
-    INPUT: Memories (Text/Photos).
+    INPUT DATA:
+    Context dump (from chats and image descriptions):
     TASK: Answer the user's question.
     
+    {focus_instruction}
+
     RULES:
     1. Filter: Use dates to ignore irrelevant logs in the context dump.
     2. Photos: Mention "[I found a photo of this!]" if relevant.
@@ -275,7 +309,12 @@ with col_chat:
 
         with st.chat_message("assistant"):
             # 1. Router
+            # decision = agent_router(prompt)
             decision = agent_router(prompt)
+            expander_router.write(decision)
+            expander_router.progress(decision.get('text_weight', 0.5), text="Text Weight")
+            expander_router.progress(decision.get('image_weight', 0.5), text="Image Weight")
+            expander_router.caption(decision.get('reasoning'))
             expander_router.json(decision)
             
             # 2. Expander
@@ -297,7 +336,7 @@ with col_chat:
                 expander_filter.caption("Some images were removed as irrelevant.")
             
             # 5. Solving
-            response_stream = agent_solver(prompt, context_txt)
+            response_stream = agent_solver(prompt, context_txt, decision)
             
             full_response = ""
             placeholder = st.empty()
