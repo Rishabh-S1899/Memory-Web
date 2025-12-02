@@ -17,6 +17,16 @@ MODEL_NAME = "jinaai/jina-embeddings-v4"
 
 os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
 
+def date_to_int(date_str):
+    # Converts "2024-03-01" -> 20240301 (Integer)
+    try:
+        clean_str = date_str.replace("-", "").replace("/", "").split(" ")[0]
+        return int(clean_str)
+    except:
+        return 0 # Fallback for unknown dates
+
+
+
 # --- CUSTOM JINA WRAPPER FOR CHROMA ---
 class JinaEmbedder(EmbeddingFunction):
     def __init__(self, model_name, device="cuda"):
@@ -90,8 +100,19 @@ def main():
             summary = item.get('summary_vector_source', '')
             vector_text = f"{summary} Keywords: {', '.join(keywords)}"
             
+            # meta = {
+            #     "date": normalize_date(item['metadata'].get('date', "2024-01-01")),
+            #     "type": "chat",
+            #     "score": item['metadata'].get('score', 5),
+            #     "mood": item['metadata'].get('mood', "Neutral"),
+            #     "raw_chat_dump": json.dumps(item['original_chat'], ensure_ascii=False)
+            # }
+            # ... inside chat loop ...
+            date_str = normalize_date(item['metadata'].get('date', "2024-01-01"))
+
             meta = {
-                "date": normalize_date(item['metadata'].get('date', "2024-01-01")),
+                "date": date_str,         # Keep string for display
+                "date_int": date_to_int(date_str), # <--- NEW: Integer for Filtering
                 "type": "chat",
                 "score": item['metadata'].get('score', 5),
                 "mood": item['metadata'].get('mood', "Neutral"),
@@ -134,8 +155,19 @@ def main():
             tags = item.get('tags', [])
             if tags is None: tags = []
 
+            # meta = {
+            #     "date": normalize_date(item['exif_date']),
+            #     "type": "image",
+            #     "filepath": item['filepath'],
+            #     "tags": ",".join(tags)
+            # }
+
+            # ... inside image loop ...
+            date_str = normalize_date(item['exif_date'])
+
             meta = {
-                "date": normalize_date(item['exif_date']),
+                "date": date_str,
+                "date_int": date_to_int(date_str), # <--- NEW
                 "type": "image",
                 "filepath": item['filepath'],
                 "tags": ",".join(tags)
