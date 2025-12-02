@@ -242,6 +242,7 @@ def agent_solver(query, context,weights):
         - The user wants details about what was SAID.
         - You MUST quote the "TRANSCRIPT" sections.
         - Use photos sparingly, only if they perfectly match a specific message.
+        - Focus on the text side, include photos only if they are a direct match with the query.
         """
     else:
         focus_instruction = """
