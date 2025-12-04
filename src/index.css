@@ -2,127 +2,106 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
+
+/* Time Capsule - Romantic Anniversary Theme */
 
 @layer base {
   :root {
-    /* Romantic pastel theme */
-    --background: 340 100% 98%;
-    --foreground: 340 30% 20%;
+    /* Cream & Ivory Base */
+    --background: 36 33% 97%;
+    --foreground: 0 0% 18%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 340 30% 20%;
+    /* Card surfaces */
+    --card: 36 33% 99%;
+    --card-foreground: 0 0% 18%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 340 30% 20%;
+    /* Popover */
+    --popover: 36 33% 99%;
+    --popover-foreground: 0 0% 18%;
 
-    /* Rose pink primary */
-    --primary: 345 75% 70%;
-    --primary-foreground: 0 0% 100%;
+    /* Rose Gold Primary */
+    --primary: 352 31% 58%;
+    --primary-foreground: 36 33% 97%;
 
-    /* Lavender mist secondary */
-    --secondary: 280 40% 85%;
-    --secondary-foreground: 280 50% 30%;
+    /* Soft Blush Secondary */
+    --secondary: 350 33% 95%;
+    --secondary-foreground: 0 0% 18%;
 
-    /* Soft muted tones */
-    --muted: 340 30% 95%;
-    --muted-foreground: 340 20% 50%;
+    /* Muted tones */
+    --muted: 36 20% 92%;
+    --muted-foreground: 0 0% 40%;
 
-    /* Champagne gold accent */
-    --accent: 35 80% 75%;
-    --accent-foreground: 35 50% 30%;
+    /* Accent - Warm Rose */
+    --accent: 350 33% 92%;
+    --accent-foreground: 0 0% 18%;
 
-    --destructive: 0 70% 60%;
-    --destructive-foreground: 0 0% 100%;
+    /* Destructive */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 36 33% 97%;
 
-    --border: 340 30% 90%;
-    --input: 340 30% 90%;
-    --ring: 345 75% 70%;
+    /* Borders & Inputs */
+    --border: 36 20% 88%;
+    --input: 36 20% 88%;
+    --ring: 352 31% 58%;
 
-    --radius: 1rem;
-    
-    /* Custom romantic gradients */
-    --gradient-romantic: linear-gradient(135deg, hsl(345, 75%, 85%) 0%, hsl(280, 50%, 90%) 100%);
-    --gradient-dreamy: linear-gradient(180deg, hsl(340, 100%, 98%) 0%, hsl(280, 40%, 95%) 100%);
-    --gradient-shimmer: linear-gradient(90deg, hsl(345, 75%, 75%) 0%, hsl(280, 50%, 80%) 50%, hsl(35, 80%, 75%) 100%);
-    
-    /* Glass effects */
-    --glass-bg: hsla(0, 0%, 100%, 0.25);
-    --glass-border: hsla(0, 0%, 100%, 0.4);
-    --glass-shadow: 0 8px 32px 0 hsla(340, 75%, 70%, 0.15);
-    
-    /* Animations */
-    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
+    /* Custom romantic tokens */
+    --rose-gold: 352 31% 58%;
+    --rose-gold-light: 352 40% 75%;
+    --cream: 36 33% 97%;
+    --cream-dark: 36 25% 92%;
+    --charcoal: 0 0% 18%;
+    --charcoal-light: 0 0% 35%;
+    --blush: 350 33% 95%;
+    --blush-deep: 350 25% 88%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    /* Gradients */
+    --gradient-romantic: linear-gradient(135deg, hsl(36 33% 97%) 0%, hsl(350 33% 95%) 100%);
+    --gradient-rose: linear-gradient(135deg, hsl(352 31% 58%) 0%, hsl(352 40% 70%) 100%);
+    --gradient-overlay: linear-gradient(180deg, hsla(0, 0%, 0%, 0.3) 0%, hsla(0, 0%, 0%, 0.6) 100%);
 
-    --sidebar-primary: 240 5.9% 10%;
+    /* Shadows */
+    --shadow-soft: 0 4px 20px -4px hsla(352, 31%, 58%, 0.15);
+    --shadow-card: 0 8px 30px -8px hsla(0, 0%, 0%, 0.1);
+    --shadow-elevated: 0 20px 50px -15px hsla(0, 0%, 0%, 0.15);
 
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar (keeping for compatibility) */
+    --sidebar-background: 36 33% 97%;
+    --sidebar-foreground: 0 0% 18%;
+    --sidebar-primary: 352 31% 58%;
+    --sidebar-primary-foreground: 36 33% 97%;
+    --sidebar-accent: 350 33% 95%;
+    --sidebar-accent-foreground: 0 0% 18%;
+    --sidebar-border: 36 20% 88%;
+    --sidebar-ring: 352 31% 58%;
   }
 
   .dark {
-    --background: 340 30% 10%;
-    --foreground: 340 30% 95%;
-
-    --card: 340 20% 15%;
-    --card-foreground: 340 30% 95%;
-
-    --popover: 340 20% 15%;
-    --popover-foreground: 340 30% 95%;
-
-    --primary: 345 75% 65%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 280 30% 25%;
-    --secondary-foreground: 280 40% 90%;
-
-    --muted: 340 20% 20%;
-    --muted-foreground: 340 20% 60%;
-
-    --accent: 35 70% 65%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 60% 50%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 340 20% 25%;
-    --input: 340 20% 25%;
-    --ring: 345 75% 65%;
-    
-    --sidebar-background: 340 20% 15%;
-    --sidebar-foreground: 340 30% 90%;
-    --sidebar-primary: 345 75% 65%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 340 20% 20%;
-    --sidebar-accent-foreground: 340 30% 90%;
-    --sidebar-border: 340 20% 25%;
-    --sidebar-ring: 345 75% 65%;
-  }
-}
-
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
-
-@layer base {
-  body {
-    font-family: 'Inter', sans-serif;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display', serif;
+    --background: 0 0% 10%;
+    --foreground: 36 33% 95%;
+    --card: 0 0% 12%;
+    --card-foreground: 36 33% 95%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 36 33% 95%;
+    --primary: 352 40% 65%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 36 33% 95%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 36 20% 70%;
+    --accent: 0 0% 18%;
+    --accent-foreground: 36 33% 95%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 36 33% 95%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 352 40% 65%;
+    --rose-gold: 352 40% 65%;
+    --rose-gold-light: 352 35% 55%;
+    --cream: 36 20% 90%;
+    --charcoal: 0 0% 90%;
   }
 }
 
@@ -131,69 +110,48 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-background text-foreground;
-    background: var(--gradient-dreamy);
-    min-height: 100vh;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+@layer components {
+  .text-romantic {
+    @apply text-primary;
+  }
+
+  .bg-romantic {
+    background: var(--gradient-romantic);
+  }
+
+  .shadow-romantic {
+    box-shadow: var(--shadow-soft);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
   }
 }
 
 @layer utilities {
-  /* Glassmorphism utilities */
-  .glass {
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow);
+  .font-serif {
+    font-family: 'Playfair Display', serif;
   }
-  
-  .glass-dark {
-    background: hsla(340, 20%, 15%, 0.4);
-    backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid hsla(340, 20%, 30%, 0.4);
-  }
-  
-  /* Floating animation */
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
-  }
-  
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-  
-  /* Ken Burns effect */
-  @keyframes ken-burns {
-    0% { transform: scale(1) translate(0, 0); }
-    100% { transform: scale(1.1) translate(-5%, -5%); }
-  }
-  
-  .animate-ken-burns {
-    animation: ken-burns 20s ease-in-out infinite alternate;
-  }
-  
-  /* Shimmer effect */
-  @keyframes shimmer {
-    0% { background-position: -1000px 0; }
-    100% { background-position: 1000px 0; }
-  }
-  
-  .animate-shimmer {
-    background: var(--gradient-shimmer);
-    background-size: 200% auto;
-    animation: shimmer 3s linear infinite;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  
-  /* Pulse glow */
-  @keyframes pulse-glow {
-    0%, 100% { opacity: 1; box-shadow: 0 0 20px hsl(345, 75%, 70%); }
-    50% { opacity: 0.7; box-shadow: 0 0 40px hsl(345, 75%, 70%); }
-  }
-  
-  .animate-pulse-glow {
-    animation: pulse-glow 2s ease-in-out infinite;
+
+  .font-sans {
+    font-family: 'Inter', sans-serif;
   }
 }
