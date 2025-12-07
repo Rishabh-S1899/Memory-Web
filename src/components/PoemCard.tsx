@@ -11,6 +11,12 @@ import {
 } from "@/components/ui/select";
 import { Poem, artStyles, ArtStyle } from "@/data/mockData";
 
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
+
+
 interface PoemCardProps {
   poem: Poem;
 }

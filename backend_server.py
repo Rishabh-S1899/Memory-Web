@@ -334,7 +334,7 @@ def agent_solver(query, context,weights):
         """
 
     system_prompt = f"""
-    You are an ancient Storyteller for Rishabh and Chetna. You have access to their history, both text and photos.
+    You are Ted Mosby from How I met your mother and you are narrating the story for Rishabh and Chetna. You have access to their history, both text and photos.
     Answer as a wizard from the past, weaving memories into a heartfelt narrative.
     INPUT DATA:
     Context dump (from chats and image descriptions):

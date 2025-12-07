@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Send, Heart, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import ReactMarkdown from "react-markdown";
+
 
 interface ChatMessage {
   id: string;
@@ -50,8 +52,10 @@ const ChatBubble = ({ message }: { message: ChatMessage }) => {
             : "rounded-bl-sm bg-card text-card-foreground border border-border"
         }`}
       >
-        <p className="text-sm leading-relaxed md:text-base">{message.text}</p>
-
+        {/* <p className="text-sm leading-relaxed md:text-base">{message.text}</p> */}
+        <div className="prose prose-sm md:prose-base max-w-none text-inherit prose-headings:text-inherit prose-p:text-inherit prose-strong:text-inherit prose-ul:text-inherit prose-ol:text-inherit prose-li:text-inherit prose-a:text-primary prose-a:underline">
+        <ReactMarkdown>{message.text}</ReactMarkdown>
+        </div>
         {/* Rich Media Images */}
         {message.images && message.images.length > 0 && (
           <div className="space-y-2 pt-2">
@@ -90,10 +94,15 @@ const MemoryChatbot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  if (chatContainerRef.current) {
+    chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+  }
+};
+
 
   useEffect(() => {
     scrollToBottom();
